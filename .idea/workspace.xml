@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d3bc1b74-ea90-43e1-8302-3079fb6c14f3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/ConfigServer/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigServer/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProductService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProductService/src/main/java/com/claivenant/ProductService/Controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/com/claivenant/ProductService/Controller/ProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProductService/src/main/java/com/claivenant/ProductService/Service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/com/claivenant/ProductService/Service/ProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProductService/src/main/java/com/claivenant/ProductService/Service/ProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/com/claivenant/ProductService/Service/ProductServiceImpl.java" afterDir="false" />
-    </list>
+    <list default="true" id="d3bc1b74-ea90-43e1-8302-3079fb6c14f3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
