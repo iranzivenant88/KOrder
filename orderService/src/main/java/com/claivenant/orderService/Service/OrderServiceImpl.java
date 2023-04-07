@@ -3,6 +3,7 @@ package com.claivenant.orderService.Service;
 import com.claivenant.orderService.Entity.Order;
 import com.claivenant.orderService.Model.OrderRequest;
 import com.claivenant.orderService.Repository.OrderRepository;
+import com.claivenant.orderService.external.client.ProductService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,14 @@ import java.time.Instant;
 public class OrderServiceImpl implements OrderService{
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private ProductService productService;
     @Override
     public Long placeOrder(OrderRequest orderRequest) {
         log.info("Placing order:{}",orderRequest);
+
+        productService.reduceQuantity(orderRequest.getProductId(),orderRequest.getQuantity());
+        log.info("Creating Order with status CREATED");
         Order order = Order.builder()
                 .amount(orderRequest.getTotalAmount())
                 .orderStatus("CREATED")
