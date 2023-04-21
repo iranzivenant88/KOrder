@@ -43,6 +43,7 @@ public class OrderServiceImpl implements OrderService{
                 .quantity(orderRequest.getQuantity())
                 .build();
         order = orderRepository.save(order);
+
         log.info("Calling Payment service to complete the payment");
         PaymentRequest paymentRequest
                 =PaymentRequest.builder()
