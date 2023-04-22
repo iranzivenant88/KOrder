@@ -8,7 +8,7 @@ import reactor.core.publisher.Flux;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestServiceInstanceListSupplier implements ServiceInstanceListSupplier {
+public class  TestServiceInstanceListSupplier implements ServiceInstanceListSupplier {
     @Override
     public String getServiceId() {
         return null;
