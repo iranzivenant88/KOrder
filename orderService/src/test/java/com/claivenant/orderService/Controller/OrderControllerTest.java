@@ -9,7 +9,6 @@ import com.claivenant.orderService.Service.OrderService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -36,8 +34,8 @@ import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.nio.charset.Charset.defaultCharset;
-import static org.bouncycastle.asn1.x500.style.RFC4519Style.o;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.util.StreamUtils.copyToString;
 
 @SpringBootTest({"server.port = 0"})
@@ -57,11 +55,10 @@ public class OrderControllerTest {
 
     @RegisterExtension
     static WireMockExtension wireMockServer
-            =WireMockExtension.newInstance()
+            = WireMockExtension.newInstance()
             .options(WireMockConfiguration
                     .wireMockConfig()
                     .port(8080))
-
             .build();
     private ObjectMapper objectMapper
             =new ObjectMapper()
@@ -94,8 +91,9 @@ public class OrderControllerTest {
                                  copyToString(
                                          OrderControllerTest.class
                                                  .getClassLoader()
-                                                 .getResourceAsStream("mock/GetPaymentDetails.json"),
-                                         defaultCharset()))));
+                                                 .getResourceAsStream("mock/GetPayment.json"),
+                                         defaultCharset()
+                                 ))));
 
  }
 
@@ -108,20 +106,26 @@ public class OrderControllerTest {
 
  private void getProductDetailsResponse() throws IOException {
       //GET/product/1
-  wireMockServer.stubFor((WireMock.get("/product/1")
-          .willReturn((aResponse()
+  wireMockServer.stubFor(get("/product/1")
+          .willReturn(aResponse()
                   .withStatus(HttpStatus.OK.value())
                   .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                   .withBody(copyToString(
                           OrderControllerTest.class
                                   .getClassLoader()
                                   .getResourceAsStream("mock/GetProduct.json"),
-                          defaultCharset()
-                  ))
-          ))));
-
+                          Charset.defaultCharset()
+                  ))));
  }
 
+    private OrderRequest getMockOrderRequest() {
+        return OrderRequest.builder()
+                .productId(1)
+                .paymentMode(PaymentMode.CASH)
+                .quantity(10)
+                .totalAmount(200)
+                .build();
+    }
  @Test
     public void test_WhenPlaceOrder_DoPayment_Success() throws Exception{
         //First Place Order
@@ -131,29 +135,24 @@ public class OrderControllerTest {
      MvcResult mvcResult
              =mockMvc.perform(MockMvcRequestBuilders.post("/order/placeOrder")
              .with(SecurityMockMvcRequestPostProcessors.jwt().authorities(new SimpleGrantedAuthority("Customer")))
-             .content(MediaType.APPLICATION_JSON_VALUE)
+             .contentType(MediaType.APPLICATION_JSON_VALUE)
              .content(objectMapper.writeValueAsString(orderRequest))
              ).andExpect(MockMvcResultMatchers.status().isOk())
              .andReturn();
+
      String orderId = mvcResult.getResponse().getContentAsString();
      Optional<Order>order = orderRepository.findById(Long.valueOf(orderId));
      assertTrue(order.isPresent());
 
-     assertEquals(Long.parseLong(orderId),o.getId());
+
      Order o = order.get();
+     assertEquals(Long.parseLong(orderId),o.getId());
      assertEquals("PLACED",o.getOrderStatus());
      assertEquals(orderRequest.getTotalAmount(),o.getAmount());
      assertEquals(orderRequest.getQuantity(),o.getQuantity());
 
     }
 
-    private OrderRequest getMockOrderRequest() {
-         return OrderRequest.builder()
-                 .productId(1)
-                 .paymentMode(PaymentMode.CASH)
-                 .quantity(10)
-                 .totalAmount(200)
-                 .build();
-    }
+
 
 }
