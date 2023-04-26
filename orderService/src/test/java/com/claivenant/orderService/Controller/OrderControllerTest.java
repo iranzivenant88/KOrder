@@ -36,6 +36,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.nio.charset.Charset.defaultCharset;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.util.StreamUtils.copyToString;
 
 @SpringBootTest({"server.port = 0"})
@@ -54,17 +55,16 @@ public class OrderControllerTest {
     private MockMvc mockMvc ;
 
     @RegisterExtension
-    static WireMockExtension wireMockServer
-            = WireMockExtension.newInstance()
+    static WireMockExtension wireMockServer = WireMockExtension.newInstance()
             .options(WireMockConfiguration
                     .wireMockConfig()
-                    .port(8080))
+                    .port(8081))
             .build();
-    private ObjectMapper objectMapper
-            =new ObjectMapper()
+
+    private ObjectMapper objectMapper = new ObjectMapper()
             .findAndRegisterModules()
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false)
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
      @BeforeEach
     void setup() throws IOException {
       getProductDetailsResponse();
@@ -126,33 +126,32 @@ public class OrderControllerTest {
                 .totalAmount(200)
                 .build();
     }
- @Test
-    public void test_WhenPlaceOrder_DoPayment_Success() throws Exception{
-        //First Place Order
-       //Get Order By Order Id from Db and Check
-        //Check Output
-     OrderRequest orderRequest = getMockOrderRequest();
-     MvcResult mvcResult
-             =mockMvc.perform(MockMvcRequestBuilders.post("/order/placeOrder")
-             .with(SecurityMockMvcRequestPostProcessors.jwt().authorities(new SimpleGrantedAuthority("Customer")))
-             .contentType(MediaType.APPLICATION_JSON_VALUE)
-             .content(objectMapper.writeValueAsString(orderRequest))
-             ).andExpect(MockMvcResultMatchers.status().isOk())
-             .andReturn();
+    @Test
+    public void test_WhenPlaceOrder_DoPayment_Success() throws Exception {
+        // First Place Order
+        // Get Order by Order Id from Db and check
+        // Check Output
 
-     String orderId = mvcResult.getResponse().getContentAsString();
-     Optional<Order>order = orderRepository.findById(Long.valueOf(orderId));
-     assertTrue(order.isPresent());
+        OrderRequest orderRequest = getMockOrderRequest();
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/order/placeOrder")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("Customer")))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(orderRequest)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
+        String orderId = mvcResult.getResponse().getContentAsString();
 
-     Order o = order.get();
-     assertEquals(Long.parseLong(orderId),o.getId());
-     assertEquals("PLACED",o.getOrderStatus());
-     assertEquals(orderRequest.getTotalAmount(),o.getAmount());
-     assertEquals(orderRequest.getQuantity(),o.getQuantity());
+        Optional<Order> order = orderRepository.findById(Long.valueOf(orderId));
+        assertTrue(order.isPresent());
+
+        Order o = order.get();
+        assertEquals(Long.parseLong(orderId), o.getId());
+        assertEquals("PLACED", o.getOrderStatus());
+        assertEquals(orderRequest.getTotalAmount(), o.getAmount());
+        assertEquals(orderRequest.getQuantity(), o.getQuantity());
 
     }
-
 
 
 }
