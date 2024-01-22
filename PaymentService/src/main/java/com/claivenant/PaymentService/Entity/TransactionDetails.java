@@ -18,7 +18,7 @@ import java.time.Instant;
 
 public class TransactionDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(name = "ORDER_ID")
     private long orderId;
